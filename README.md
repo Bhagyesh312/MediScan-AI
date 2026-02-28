@@ -2,6 +2,8 @@
 
 A machine learning-powered web application that predicts potential diseases based on symptoms you select.
 
+🔗 **Live Demo:** [https://mediscan-ai-yqdy.onrender.com](https://mediscan-ai-yqdy.onrender.com)
+
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.0+-green.svg)
 ![ML](https://img.shields.io/badge/ML-scikit--learn-orange.svg)

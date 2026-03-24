@@ -23,7 +23,7 @@ A machine learning web app that predicts diseases based on selected symptoms, bu
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/mediscan-ai.git
+git clone https://github.com/Bhagyesh312/MediScan-AI.git
 cd mediscan-ai
 
 # 2. Create virtual environment

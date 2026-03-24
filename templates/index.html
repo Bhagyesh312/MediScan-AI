@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediScan AI — Disease Prediction</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#060818; --surface:rgba(255,255,255,0.04); --border:rgba(255,255,255,0.08);
+      --border-hi:rgba(99,179,237,0.5); --blue:#63b3ed; --purple:#b794f4;
+      --pink:#f687b3; --text:#e2e8f0; --muted:rgba(226,232,240,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+    .bg-mesh{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    .blob{position:absolute;border-radius:50%;filter:blur(100px);opacity:0.18;animation:drift 12s ease-in-out infinite}
+    .blob-1{width:600px;height:600px;background:#4299e1;top:-200px;left:-150px}
+    .blob-2{width:500px;height:500px;background:#9f7aea;bottom:-150px;right:-100px;animation-delay:-5s}
+    .blob-3{width:350px;height:350px;background:#ed64a6;top:40%;left:55%;animation-delay:-9s}
+    @keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.05)}66%{transform:translate(-20px,25px) scale(0.97)}}
+    .particles{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,0.06) 1px,transparent 1px);background-size:40px 40px}
+    .page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px 60px}
+    nav{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;margin-bottom:48px;animation:fadeDown 0.6s ease both}
+    .nav-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
+    .nav-logo .logo-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px}
+    .nav-badge{font-size:11px;font-weight:600;padding:4px 10px;border-radius:99px;border:1px solid var(--border);color:var(--muted);background:var(--surface);backdrop-filter:blur(10px)}
+    @keyframes fadeDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .hero{text-align:center;margin-bottom:40px;animation:fadeUp 0.7s 0.1s ease both}
+    .hero-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--blue);background:rgba(99,179,237,0.1);border:1px solid rgba(99,179,237,0.25);border-radius:99px;padding:5px 14px;margin-bottom:18px}
+    .hero-pill span{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 1.5s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    h1{font-size:clamp(26px,5vw,46px);font-weight:800;line-height:1.15;letter-spacing:-1px;color:#fff;margin-bottom:14px}
+    h1 .grad{background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero-sub{font-size:15px;color:var(--muted);max-width:480px;margin:0 auto;line-height:1.7}
+    .stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:36px;animation:fadeUp 0.7s 0.2s ease both}
+    .stat-chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:99px;padding:8px 16px;backdrop-filter:blur(12px);font-size:13px;color:var(--muted)}
+    .stat-chip strong{color:var(--text);font-weight:700}
+    .card{width:100%;max-width:980px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:24px;backdrop-filter:blur(24px);box-shadow:0 32px 80px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.06);overflow:hidden;animation:fadeUp 0.7s 0.3s ease both}
+    .card-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .card-title{font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}
+    .card-title .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple))}
+    .search-wrap{position:relative;flex:1;min-width:200px;max-width:300px}
+    .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+    .search-wrap input{width:100%;padding:9px 14px 9px 38px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border-color 0.25s,background 0.25s,box-shadow 0.25s}
+    .search-wrap input::placeholder{color:var(--muted)}
+    .search-wrap input:focus{border-color:var(--border-hi);background:rgba(99,179,237,0.07);box-shadow:0 0 0 3px rgba(99,179,237,0.12)}
+    .tabs-wrap{padding:0 28px;border-bottom:1px solid var(--border);overflow-x:auto}
+    .tabs-wrap::-webkit-scrollbar{height:0}
+    .tabs{display:flex;gap:4px;padding:12px 0;white-space:nowrap}
+    .tab-btn{padding:6px 14px;border-radius:8px;border:1px solid transparent;font-size:12.5px;font-weight:600;color:var(--muted);background:transparent;cursor:pointer;font-family:inherit;transition:all 0.18s;white-space:nowrap}
+    .tab-btn:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+    .tab-btn.active{color:#fff;background:rgba(99,179,237,0.15);border-color:rgba(99,179,237,0.35)}
+    .card-body{padding:20px 28px}
+    .counter-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .counter-row .label{font-size:13px;color:var(--muted)}
+    .counter-row .badge{font-size:12px;font-weight:700;background:linear-gradient(135deg,var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .symptom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px;max-height:360px;overflow-y:auto;padding-right:4px}
+    .symptom-grid::-webkit-scrollbar{width:5px}
+    .symptom-grid::-webkit-scrollbar-track{background:transparent}
+    .symptom-grid::-webkit-scrollbar-thumb{background:rgba(99,179,237,0.3);border-radius:99px}
+    .sym-label{display:flex;align-items:center;gap:9px;cursor:pointer;padding:9px 12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:rgba(226,232,240,0.65);font-size:12.5px;font-weight:500;transition:all 0.18s ease;user-select:none;position:relative;overflow:hidden}
+    .sym-label::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,179,237,0.08),rgba(183,148,244,0.08));opacity:0;transition:opacity 0.18s}
+    .sym-label:hover{border-color:rgba(99,179,237,0.3);color:var(--text);transform:translateY(-1px)}
+    .sym-label:hover::before{opacity:1}
+    .sym-label.checked{border-color:rgba(99,179,237,0.55);background:rgba(99,179,237,0.1);color:#fff;box-shadow:0 0 0 1px rgba(99,179,237,0.2),0 4px 12px rgba(99,179,237,0.15)}
+    .sym-label.checked::before{opacity:1}
+    input[type="checkbox"]{display:none}
+    .checkmark{width:16px;height:16px;flex-shrink:0;border:1.5px solid rgba(255,255,255,0.2);border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all 0.18s;position:relative;z-index:1}
+    .sym-label.checked .checkmark{background:linear-gradient(135deg,var(--blue),var(--purple));border-color:transparent}
+    .checkmark svg{opacity:0;transform:scale(0.5);transition:all 0.15s}
+    .sym-label.checked .checkmark svg{opacity:1;transform:scale(1)}
+    .sym-text{position:relative;z-index:1;line-height:1.3}
+    .selected-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+    .sel-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:rgba(99,179,237,0.12);border:1px solid rgba(99,179,237,0.3);border-radius:99px;font-size:11.5px;font-weight:600;color:var(--blue)}
+    .sel-tag .rm{cursor:pointer;opacity:0.6;font-size:13px;line-height:1;transition:opacity 0.15s}
+    .sel-tag .rm:hover{opacity:1}
+    .card-footer{padding:18px 28px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .footer-hint{font-size:12px;color:var(--muted)}
+    .footer-hint strong{color:var(--blue)}
+    .predict-btn{display:inline-flex;align-items:center;gap:10px;padding:13px 32px;background:linear-gradient(135deg,#4299e1,#9f7aea);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.25s ease;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(66,153,225,0.35)}
+    .predict-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);opacity:0;transition:opacity 0.25s}
+    .predict-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(66,153,225,0.5)}
+    .predict-btn:hover::before{opacity:1}
+    .predict-btn:active{transform:translateY(0)}
+    .predict-btn.loading .btn-text{opacity:0}
+    .predict-btn .spinner{position:absolute;width:20px;height:20px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none}
+    .predict-btn.loading .spinner{display:block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .toast{position:fixed;bottom:32px;right:24px;display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(20,14,40,0.92);border:1px solid rgba(246,173,85,0.4);border-radius:14px;backdrop-filter:blur(20px);box-shadow:0 8px 32px rgba(0,0,0,0.5);font-size:14px;font-weight:500;color:var(--text);z-index:9999;transform:translateY(20px) scale(0.96);opacity:0;pointer-events:none;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);max-width:320px}
+    .toast.show{transform:translateY(0) scale(1);opacity:1;pointer-events:auto}
+    .toast-icon{font-size:20px;flex-shrink:0}
+    .toast-body{display:flex;flex-direction:column;gap:2px}
+    .toast-title{font-weight:700;color:#fbd38d;font-size:13px}
+    .toast-msg{color:var(--muted);font-size:12.5px;line-height:1.4}
+    .toast-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 14px 14px;background:linear-gradient(90deg,#f6ad55,#f687b3);width:100%;transform-origin:left}
+    .toast.show .toast-bar{animation:shrink 3s linear forwards}
+    @keyframes shrink{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+    @media(max-width:640px){
+      .page{padding:24px 14px 50px}
+      nav{margin-bottom:28px}
+      .card-header,.card-body,.card-footer{padding-left:16px;padding-right:16px}
+      .tabs-wrap{padding:0 16px}
+      .predict-btn{width:100%;justify-content:center}
+      .search-wrap{max-width:100%}
+      .symptom-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));max-height:300px}
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-mesh">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+  <div class="particles"></div>
+
+  <div class="page">
+    <nav>
+      <a class="nav-logo" href="/">
+        <div class="logo-icon">🧬</div>
+        MediScan<span style="color:var(--blue)">AI</span>
+      </a>
+      <span class="nav-badge">v1.0 · ML Powered</span>
+    </nav>
+
+    <div class="hero">
+      <div class="hero-pill"><span></span> AI Diagnosis Engine</div>
+      <h1>Predict Your Disease<br>with <span class="grad">Precision AI</span></h1>
+      <p class="hero-sub">Select the symptoms you're experiencing and our ensemble ML model will predict the most likely condition with confidence scores.</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat-chip">🧪 <strong>132</strong> Symptoms</div>
+      <div class="stat-chip">🦠 <strong>41</strong> Diseases</div>
+      <div class="stat-chip">🤖 <strong>3-Model</strong> Ensemble</div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><span class="dot"></span>Select Symptoms</div>
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="searchInput" placeholder="Search symptoms…" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="tabs-wrap">
+        <div class="tabs">
+          <button class="tab-btn active" data-cat="All" onclick="switchTab(this)">🔬 All</button>
+          {% for cat in categories %}
+          <button class="tab-btn" data-cat="{{ cat }}" onclick="switchTab(this)">{{ cat }}</button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="counter-row">
+          <span class="label">Click to select · min. 3 required</span>
+          <span class="badge" id="countDisplay">0 selected</span>
+        </div>
+
+        <form action="/predict" method="post" id="predictForm">
+          <div class="symptom-grid" id="symptomGrid">
+            {% for symptom in symptoms %}
+            {% set cat = namespace(name='Other') %}
+            {% for c, syms in categories.items() %}{% if symptom in syms %}{% set cat.name = c %}{% endif %}{% endfor %}
+            <label class="sym-label" data-cat="{{ cat.name }}" onclick="toggleCheck(this)">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}" />
+              <span class="checkmark">
+                <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 5,9 10,3"/></svg>
+              </span>
+              <span class="sym-text">{{ symptom.replace('_', ' ').title() }}</span>
+            </label>
+            {% endfor %}
+          </div>
+
+          <div class="selected-tags" id="selectedTags"></div>
+
+          <div class="card-footer" style="margin:16px -28px -20px;">
+            <span class="footer-hint">Min. 3 symptoms · <strong id="footCount">0</strong> se
+lected</span>
+            <button type="submit" class="predict-btn" id="predictBtn">
+              <span class="btn-icon">⚡</span>
+              <span class="btn-text">Analyse Symptoms</span>
+              <div class="spinner"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-icon">⚠️</span>
+    <div class="toast-body">
+      <span class="toast-title">Not enough symptoms</span>
+      <span class="toast-msg">Please select at least 3 symptoms before predicting.</span>
+    </div>
+    <div class="toast-bar"></div>
+  </div>
+
+  <script>
+    const MIN = 3;
+    let toastTimer = null;
+    let activeCategory = 'All';
+
+    function toggleCheck(label) {
+      const cb = label.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      label.classList.toggle('checked', cb.checked);
+      updateCount();
+      renderTags();
+    }
+
+    function updateCount() {
+      const n = document.querySelectorAll('input[type="checkbox"]:checked').length;
+      document.getElementById('countDisplay').textContent = n + ' selected';
+      document.getElementById('footCount').textContent = n;
+      const btn = document.getElementById('predictBtn');
+      btn.style.opacity = n >= MIN ? '1' : '0.45';
+      btn.style.cursor  = n >= MIN ? 'pointer' : 'not-allowed';
+    }
+
+    function renderTags() {
+      const container = document.getElementById('selectedTags');
+      container.innerHTML = '';
+      document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
+        const text = cb.closest('.sym-label').querySelector('.sym-text').textContent.trim();
+        const tag = document.createElement('span');
+        tag.className = 'sel-tag';
+        tag.innerHTML = text + '<span class="rm" data-val="' + cb.value + '">&#x2715;</span>';
+        container.appendChild(tag);
+      });
+      container.querySelectorAll('.rm').forEach(rm => {
+        rm.addEventListener('click', () => removeTag(rm.dataset.val));
+      });
+    }
+
+    function removeTag(val) {
+      const cb = document.querySelector('input[value="' + val + '"]');
+      if (cb) {
+        cb.checked = false;
+        cb.closest('.sym-label').classList.remove('checked');
+        updateCount();
+        renderTags();
+      }
+    }
+
+    function switchTab(btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeCategory = btn.dataset.cat;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('.sym-label').forEach(label => {
+        const text = label.querySelector('.sym-text').textContent.toLowerCase();
+        const cat  = label.dataset.cat;
+        const matchCat  = activeCategory === 'All' || cat === activeCategory;
+        const matchText = text.includes(q);
+        label.style.display = (matchCat && matchText) ? '' : 'none';
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+
+    document.getElementById('predictForm').addEventListener('submit', function(e) {
+      const n = document.querySelectorAll('input[type="checkbox"]:checked').length;
+      if (n < MIN) {
+        e.preventDefault();
+        const toast = document.getElementById('toast');
+        const bar = toast.querySelector('.toast-bar');
+        const newBar = bar.cloneNode(true);
+        bar.replaceWith(newBar);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+        return;
+      }
+      document.getElementById('predictBtn').classList.add('loading');
+    });
+
+    updateCount();
+  </script>
+</body>
+</html>

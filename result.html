@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction Result</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(to bottom right, #cce7ff, #e6f7ff);
+            color: #003366;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .card {
+            background: white;
+            display: inline-block;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #007acc;
+            margin-bottom: 5px;
+        }
+
+        .disease {
+            font-size: 22px;
+            color: #004d80;
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .prob {
+            font-size: 14px;
+            color: #00619b;
+            margin-bottom: 12px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin: 10px auto;
+            max-width: 360px;
+        }
+
+        li {
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: #f2f9ff;
+            margin-bottom: 6px;
+            border: 1px solid #e0f1ff;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 12px;
+            text-decoration: none;
+            background: #007acc;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h1>Predicted Disease</h1>
+
+        <p class="disease">{{ disease }}</p>
+        <p class="prob">Confidence: {{ disease_prob * 100 }}%</p>
+
+        <h3>Top suggestions</h3>
+
+        <ul>
+            {% for d, p in top_diseases %}
+            <li>{{ d }} — {{ (p * 100) | round(2) }}%</li>
+            {% endfor %}
+        </ul>
+
+        <a href="/">🔙 Predict Again</a>
+    </div>
+
+</body>
+</html>
